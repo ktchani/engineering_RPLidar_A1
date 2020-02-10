@@ -5,20 +5,22 @@ from threading import Thread
 import time
 from rplidar import RPLidar
 import random
-lidar = RPLidar('COM7', baudrate=115200)
+lidar = RPLidar('COM6', baudrate=115200)
 # lidar.set_pwm()
 
 def get_data():
 
     for scan in lidar.iter_scans(max_buf_meas=500):
         print(scan)
+        file1 = open("text_data.txt", "a")
         for data in scan:
-            file1 = open("text_data.txt", "a")
-            r=str(data[2])
-            theta=str(data[1]%360)
-            file1.write(r+"|"+theta+" ")
+            r = str(data[2])
+            theta = str(data[1] % 360)
+        file1.write(r + "|" + theta + " ")
 
-            file1.close()
+        file1.close()
+
+
 
             
 
