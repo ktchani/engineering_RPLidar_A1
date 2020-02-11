@@ -4,6 +4,7 @@ from rplidar import RPLidar
 # lidar = RPLidar('COM6', baudrate=115200)
 # lidar.stop()
 # lidar.disconnect()
+
 def get_data():
     lidar = RPLidar('COM6', baudrate=115200)
     lidar.set_pwm(pwm=800)
@@ -17,17 +18,29 @@ def get_data():
     return scan
 
 for i in range(1000000):
-    if(i%3==0):
+    if(i%7==0):
         x = []
         y = []
     print(i)
     current_data=get_data()
     for point in current_data:
 
-        x.append(point[2]*np.sin(point[1]))
-        y.append(point[2]*np.cos(point[1]))
+        x.append(point[2])
+        y.append(point[1])
     plt.clf()
     plt.scatter(x, y)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, polar=True)
+
+    theta = y
+    r = x
+
+    ax.plot(theta, r, "o")
+
+
+
+
+
     plt.pause(.00001)
 plt.show()
 
