@@ -1,35 +1,32 @@
 from math import pi, sin, cos
 import matplotlib.pyplot as plt
 from rplidar import RPLidar
+
 lidar = RPLidar('COM7', baudrate=115200)
 plt.ion()
 plt.show()
-range_mm=2500
-def get_data():
-    x=[]
-    y=[] 
-    
+range_mm = 2500
 
-    counter=0
+
+def get_data():
+    x = []
+    y = []
+
+    counter = 0
     for scan in lidar.iter_scans(max_buf_meas=500):
 
-        plot_data(x,y)
-        x=[]
-        y=[]
-            
+        plot_data(x, y)
+        x = []
+        y = []
+
         for point in scan:
+            x.append(-1 * point[2] * -1 * sin(point[1] * pi / 180))
+            y.append(-1 * point[2] * -1 * cos(point[1] * pi / 180))
 
-            x.append(-1*point[2] * -1*sin(point[1] * pi / 180))
-            y.append(-1*point[2] * -1*cos(point[1] * pi / 180))
-            
-
- 
-    
-   
     return scan
 
-def plot_data(x, y):
 
+def plot_data(x, y):
     plt.clf()
     plt.xlim(-range_mm, range_mm)
     plt.ylim(-range_mm, 0)

@@ -1,0 +1,46 @@
+from math import pi, sin, cos
+import matplotlib.pyplot as plt
+from rplidar import RPLidar
+import pygame
+
+lidar = RPLidar('COM7', baudrate=115200)
+plt.ion()
+plt.show()
+range_mm = 2500
+num_door_alg = 4
+door_distance=1500
+x_forgiveness=25
+
+pygame.init()
+lcd = pygame.display.set_mode((800,800))
+pygame.mouse.set_visible(False)
+lcd.fill((0,0,0))
+pygame.display.update()
+num_object_alg=50
+origin=(400, 400)
+lcd.set_at(origin, pygame.Color(200,0,255))
+def get_data():
+
+    x = []
+    y = []
+    door_distance=1500
+    counter = 0
+    for scan in lidar.iter_scans(max_buf_meas=500):
+
+        for point in scan:
+            # if (point[1]<260 or point[1]>100) and point[2]<2000:
+            y=400+(point[2] * cos(point[1] * pi / 180)/10)
+            x=400+(point[2] * sin(point[1] * pi / 180)/10)
+            plot_point=(int(x),int(y))
+            lcd.set_at(plot_point, pygame.Color(255,255,255))
+        print('done opreation')
+        pygame.display.update()
+        lcd.fill((0, 0, 0))
+
+    return scan
+
+
+
+
+
+get_data()

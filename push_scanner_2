@@ -1,19 +1,25 @@
 from math import pi, sin, cos
 import matplotlib.pyplot as plt
 from rplidar import RPLidar
+import pygame
 
 lidar = RPLidar('COM7', baudrate=115200)
 plt.ion()
 plt.show()
 range_mm = 2500
-num_door_alg = 40
+num_door_alg = 4
 door_distance=1500
 x_forgiveness=25
 
-
+pygame.init()
+lcd = pygame.display.set_mode((320,240))
+pygame.mouse.set_visible(False)
+lcd.fill((0,0,0))
+pygame.display.update()
 num_object_alg=50
 
 def get_data():
+    lcd.fill((0, 0, 0))
     x = []
     y = []
     door_distance=1500
@@ -25,6 +31,7 @@ def get_data():
 
         x_prev_obj=[]
         obj_counter=0
+
 
 
         line_counter = 0
@@ -40,30 +47,32 @@ def get_data():
 
                 x_curr = point[2] * -1 * sin(point[1] * pi / 180)
                 y_curr=point[2] * -1 * cos(point[1] * pi / 180)
-                x_prev.append(x_curr)
-                if x_curr - x_prev[line_counter] <= 15:
-                    line_counter += 1
-                else:
-                    line_counter = 0
+                if line_counter>0:
+                    if x_curr - x_prev[line_counter-1] <= 15:
+                        x_prev.append(x_curr)
+                        line_counter += 1
+                    else:
+                        line_counter = 0
 
-                if line_counter == num_door_alg:
-                    sum_prev = 0
-                    for item in x_prev:
-                        sum_prev = sum_prev + item
-                    if sum_prev > 0:
-                        door_distance = sum_prev / num_door_alg
-                        print('Wall detected: ' + str(door_distance) + "mm to the right.")
+                    if line_counter == num_door_alg:
+                        sum_prev = 0
+                        for item in x_prev:
+                            sum_prev = sum_prev + item
+                        if sum_prev > 0:
+                            door_distance = sum_prev / num_door_alg
+                            print('Wall detected: ' + str(door_distance) + "mm to the right.")
 
-                    if sum_prev < 0:
-                        door_distance = sum_prev / num_door_alg * (-1)
-                        print('Wall detected: ' + str(door_distance) + "mm to the left.")
+                        if sum_prev < 0:
+                            door_distance = sum_prev / num_door_alg * (-1)
+                            print('Wall detected: ' + str(door_distance) + "mm to the left.")
 
-                    line_counter = 0
-                    sum_prev = 0
+                        line_counter = 0
+                        sum_prev = 0
 
 
-                x_prev_obj.append(x_curr)
+
                 if x_curr>((-door_distance)+x_forgiveness) or x_curr<(door_distance-x_forgiveness) and y_curr>-2000:
+                    x_prev_obj.append(x_curr)
                     obj_counter+=1
                     if obj_counter == num_object_alg:
                         print('OBJECT DETECTED')
@@ -72,6 +81,7 @@ def get_data():
                         obj_counter = 0
                 else:
                     obj_counter=0
+
 
 
 
